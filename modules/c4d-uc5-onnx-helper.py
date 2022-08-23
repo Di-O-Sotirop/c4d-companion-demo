@@ -1,10 +1,32 @@
-# import aitek CNN
+#############################################################################
+# Copyright 2022 - University of Modena and Reggio Emilia                   #
+#                                                                           #
+# Author:                                                                   #
+#    Dionysios Sotiropoulos, <dsotirop at unimore.it>                       #
+#    Alessandro Capotondi, <a.capotondi at unimore.it>                      #
+#                                                                           #
+# Licensed under the Apache License, Version 2.0 (the "License");           #
+# you may not use this file except in compliance with the License.          #
+# You may obtain a copy of the License at                                   #
+#                                                                           #
+#    http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                           #
+# Unless required by applicable law or agreed to in writing, software       #
+# distributed under the License is distributed on an "AS IS" BASIS,         #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  #
+# See the License for the specific language governing permissions and       #
+# limitations under the License.                                            #
+#                                                                           #
+# C4D Companion Computer Demo                                               #
+#                                                                           #
+# This software is developed under the ECSEL project Comp4drones(No 826610) #
+#                                                                           #
+#############################################################################
+
 import cv2 as cv2
 import numpy as np
-from . import c4dSettings as sett
-################################################################################################
-# Yolo Functions
-################################################################################################
+from . import c4d-uc5-settings as sett
+
 def ResizeAndPad(image, inputSize):
     canH = image.shape[0]
     canW = image.shape[1]
@@ -154,21 +176,10 @@ def printBBoxes(rem_bbox, frame):
         box_rect = cv2.rectangle(frame, boxYX, boxYrXr, (0, 0, 180), 3)
     return frame
 
-def WriteC4DVideo(img_array):
+def WriteC4DVideo(video_path, img_array):
     (canH, canW, scaleW, scaleH, padFactor) = frameSpecs(img_array[0])
-    out = cv2.VideoWriter('project.avi', cv2.VideoWriter_fourcc(*'DIVX'), 15, (canH, canW))
-    print('Writing .avi')
+    out = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'DIVX'), 15, (canH, canW))
+    
     for i in range(len(img_array)):
         out.write(img_array[i])
     out.release()
-    print('avi written')
-
-# Print Boxes on frame
-def PrintBBoxOnFrame(frame, rem_bbox, frm_count, img_array ):
-    frame = printBBoxes(rem_bbox, frame)
-    if sett.write_frames:
-        cv2.imwrite('frame_' + str(frm_count) + '.jpg', frame)
-    img_array.append(frame)
-    frm_count += 1
-
-    return (img_array, frm_count)
