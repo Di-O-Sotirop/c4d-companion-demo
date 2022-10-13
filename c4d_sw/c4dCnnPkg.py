@@ -1,7 +1,7 @@
 # import aitek CNN
 import cv2 as cv2
 import numpy as np
-import c4dSettings as sett
+from . import c4dSettings as sett
 ################################################################################################
 # Yolo Functions
 ################################################################################################
@@ -27,7 +27,7 @@ def ResizeAndPad(image, inputSize):
     return frame  # return padded and resized 640x640 image
 
 
-## Bundle function of frame spatial specification ##
+## Bundle function of frame spatial specifications ##
 def frameSpecs(frame, inputSize):
     canH = frame.shape[0]
     canW = frame.shape[1]
@@ -172,5 +172,3 @@ def PrintBBoxOnFrame(frame, rem_bbox, frm_count, img_array ):
     frm_count += 1
 
     return (img_array, frm_count)
-
-print("!")

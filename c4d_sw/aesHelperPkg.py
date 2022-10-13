@@ -33,8 +33,3 @@ def formatPlantCnt(number, total_length):
     return outNum
 
 
-print(formatPlantCnt(2250, 3))
-print(formatPlantCnt(5, 3))
-print(formatNumeric(-23.2352363352342, 2, 8))
-print(formatNumeric(-1.2352363352342, 2, 8))
-print(formatNumeric(1.9, 2, 8))
