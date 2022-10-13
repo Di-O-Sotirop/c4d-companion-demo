@@ -81,7 +81,7 @@ if cap.isOpened():
     print(" Lon: %s" % vehicle.location.global_relative_frame.lon)
     print(" Lat: %s" % vehicle.location.global_relative_frame.lat)
     # Change to AUTO mode
-    mavl.PX4setMode(mavl.MAV_MODE_AUTO)
+    mavl.PX4setMode(mavl.MAV_MODE_AUTO, vehicle)
     time.sleep(1)
     # get global position
     home = vehicle.location.global_relative_frame

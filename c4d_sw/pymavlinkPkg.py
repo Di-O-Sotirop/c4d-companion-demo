@@ -19,19 +19,18 @@ def initialize_mavlink(connection_string='/dev/ttyACM0'):
 
     # Connect to the Vehicle
     print("Connecting")
-    global vehicle
-    vehicle = connect(connection_string, wait_ready=True)
+    return connect(connection_string, wait_ready=True)
 
 
 
-def PX4setMode(mavMode):
+def PX4setMode(mavMode, vehicle):
     vehicle._master.mav.command_long_send(vehicle._master.target_system, vehicle._master.target_component,
                                           mavutil.mavlink.MAV_CMD_DO_SET_MODE, 0,
                                           mavMode,
                                           0, 0, 0, 0, 0, 0)
 
-def PX4changeToAuto():
-    PX4setMode(mavMode)
+#def PX4changeToAuto():
+#    PX4setMode(mavMode)
 def get_location_offset_meters(original_location, dNorth, dEast, alt):
     """
     Returns a LocationGlobal object containing the latitude/longitude `dNorth` and `dEast` metres from the
