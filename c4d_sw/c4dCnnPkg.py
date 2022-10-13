@@ -1,7 +1,7 @@
 # import aitek CNN
 import cv2 as cv2
 import numpy as np
-from c4dSettings import write_frames, full_video
+import c4dSettings as sett
 ################################################################################################
 # Yolo Functions
 ################################################################################################
@@ -166,10 +166,11 @@ def WriteC4DVideo(img_array):
 # Print Boxes on frame
 def PrintBBoxOnFrame(frame, rem_bbox, frm_count, img_array ):
     frame = printBBoxes(rem_bbox, frame)
-    if write_frames:
+    if sett.write_frames:
         cv2.imwrite('frame_' + str(frm_count) + '.jpg', frame)
     img_array.append(frame)
     frm_count += 1
 
     return (img_array, frm_count)
 
+print("!")
