@@ -22,12 +22,6 @@ from c4d_sw import aesHelperPkg as aesh
 # import subprocess
 import subprocess
 
-
-################################################################################################
-# Settings
-################################################################################################
-
-
 ################################################################################################
 # Init
 ################################################################################################
@@ -107,9 +101,12 @@ while (cap.isOpened()):
     longitude = vehicle.location.global_relative_frame.lon
     altitude = vehicle.location.global_relative_frame.alt
 
-    outMSG = outMSG + ',' + aesh.formatNumeric(latitude, 2, 10) + ',' + aesh.formatNumeric(longitude, 2, 10) + ',' + aesh.formatNumeric(altitude, 2, 10)
+    outMSG = outMSG + ',' + aesh.formatNumeric(latitude, 2, 10) + ',' + aesh.formatNumeric(longitude, 2,
+                                                                                           10) + ',' + aesh.formatNumeric(
+        altitude, 2, 10)
     # Capture Speed
-    outMSG = outMSG + ',' + aesh.formatNumeric(str(vehicle.velocity.vx), 2, 7) + ',' + aesh.formatNumeric(str(vehicle.velocity.vy),7) + ',' + aesh.formatNumeric(str(vehicle.velocity.vz), 2, 7) + ','
+    outMSG = outMSG + ',' + aesh.formatNumeric(str(vehicle.velocity.vx), 2, 7) + ',' + aesh.formatNumeric(
+        str(vehicle.velocity.vy), 7) + ',' + aesh.formatNumeric(str(vehicle.velocity.vz), 2, 7) + ','
 
     #  LonLatAlt = []
     #  LonLatAlt.append(vehicle.location.global_relative_frame.lon)
