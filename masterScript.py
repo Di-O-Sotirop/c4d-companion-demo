@@ -52,7 +52,7 @@ inputSize = (640, 640)
 opts = ort.SessionOptions()
 opts.intra_op_num_threads = 4
 opts.inter_op_num_threads = 1
-session = ort.InferenceSession(c4dcnn.model, sess_options=opts)
+session = ort.InferenceSession(sett.model, sess_options=opts)
 input_name = session.get_inputs()[0].name
 output_0_name = session.get_outputs()[0].name
 
@@ -101,19 +101,15 @@ while (cap.isOpened()):
     curDT = datetime.datetime.now()
     outMSG = curDT.strftime("%Y%m%d%H%M%S")
     # Add IMEI
-    outMSG = outMSG + "0000000000000000"
+    outMSG = outMSG + ',' + "0000000000000000"
     # Capture Position
     latitude = vehicle.location.global_relative_frame.lat
     longitude = vehicle.location.global_relative_frame.lon
     altitude = vehicle.location.global_relative_frame.alt
 
-    outMSG = outMSG + aesh.formatNumeric(latitude, 2, 10) + aesh.formatNumeric(longitude, 2, 10) + aesh.formatNumeric(
-        altitude, 2, 10)
+    outMSG = outMSG + ',' + aesh.formatNumeric(latitude, 2, 10) + ',' + aesh.formatNumeric(longitude, 2, 10) + ',' + aesh.formatNumeric(altitude, 2, 10)
     # Capture Speed
-    outMSG = outMSG + aesh.formatNumeric(str(vehicle.velocity.vx), 2, 7) + aesh.formatNumeric(str(vehicle.velocity.vy),
-                                                                                              2,
-                                                                                              7) + aesh.formatNumeric(
-        str(vehicle.velocity.vz), 2, 7)
+    outMSG = outMSG + ',' + aesh.formatNumeric(str(vehicle.velocity.vx), 2, 7) + ',' + aesh.formatNumeric(str(vehicle.velocity.vy),7) + ',' + aesh.formatNumeric(str(vehicle.velocity.vz), 2, 7) + ','
 
     #  LonLatAlt = []
     #  LonLatAlt.append(vehicle.location.global_relative_frame.lon)
