@@ -3,7 +3,7 @@
 ################################################################################################
 import argparse
 
-simultation 		= False
+simulation 		= False
 connection_string 	= '/dev/ttyACM0'
 MAV_MODE_AUTO   	= 4
 # https://github.com/PX4/PX4-Autopilot/blob/master/Tools/mavlink_px4.py
