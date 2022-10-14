@@ -66,7 +66,7 @@ if cap.isOpened():
     ################################################################################################
     # Start mission
     ################################################################################################
-
+    home_position_set = sett.simulation
     # wait for a home position lock
     while not home_position_set:
         print("Waiting for home position...")
@@ -81,7 +81,7 @@ if cap.isOpened():
     print(" Lon: %s" % vehicle.location.global_relative_frame.lon)
     print(" Lat: %s" % vehicle.location.global_relative_frame.lat)
     # Change to AUTO mode
-    mavl.PX4setMode(mavl.MAV_MODE_AUTO, vehicle)
+    mavl.PX4setMode(sett.MAV_MODE_AUTO, vehicle)
     time.sleep(1)
     # get global position
     home = vehicle.location.global_relative_frame
