@@ -100,25 +100,28 @@ while (cap.isOpened()):
     latitude = vehicle.location.global_relative_frame.lat
     longitude = vehicle.location.global_relative_frame.lon
     altitude = vehicle.location.global_relative_frame.alt
+    vx = vehicle.velocity[0]
+    vy = vehicle.velocity[1]
+    vz = vehicle.velocity[2]
 
+    if simulation == True:
+        latitude = 0
+        longitude = 0
+        altitude = 0
+        vx = 0
+        vy = 0
+        vz = 0
     outMSG = outMSG + ',' + aesh.formatNumeric(latitude, 2, 10) + ',' + aesh.formatNumeric(longitude, 2,
                                                                                            10) + ',' + aesh.formatNumeric(
         altitude, 2, 10)
     # Capture Speed
-    outMSG = outMSG + ',' + aesh.formatNumeric(str(vehicle.velocity.vx), 2, 7) + ',' + aesh.formatNumeric(
-        str(vehicle.velocity.vy), 7) + ',' + aesh.formatNumeric(str(vehicle.velocity.vz), 2, 7) + ','
-
-    #  LonLatAlt = []
-    #  LonLatAlt.append(vehicle.location.global_relative_frame.lon)
-    #  LonLatAlt.append(vehicle.location.global_relative_frame.lat)
-    #  LonLatAlt.append(vehicle.location.global_relative_frame.alt)
+    outMSG = outMSG + ',' + aesh.formatNumeric(vx, 2, 7) + ',' + aesh.formatNumeric(vy,2, 7) + ',' + aesh.formatNumeric(vz, 2, 7) + ','
 
     ret, frame = cap.read()
     if ret == False:
         print('escaping')
         break
 
-    # Image Pre-Processing
     data = c4dcnn.inputPreprocess(frame, (640, 640))
     ###########################INFERENCE_WITH_ONNXRUNTIME###################################
     [result_0] = session.run([output_0_name], {input_name: data})
