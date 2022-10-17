@@ -12,21 +12,29 @@
 import time, cv2, datetime
 
 import numpy as np
-import onnxruntime as ort
+#import onnxruntime as ort
+import sys
+
 
 from c4d_sw import c4dCnnPkg as c4dcnn
 from c4d_sw import pymavlinkPkg as mavl
 from c4d_sw import c4dSettings as sett
 from c4d_sw import aesHelperPkg as aesh
+args = sett.manipulate_args()
+print("Printing ARGS")
+print(args.simulation)
+print(args.camera)
+print(args.model)
 
+print(args)
 # import subprocess
 import subprocess
 
 ################################################################################################
 # Init
 ################################################################################################
-vehicle = mavl.initialize_mavlink(connection_string='/dev/ttyACM0')
-
+vehicle = mavl.initialize_mavlink(args.PX4dev)
+print("\n!!!!!")
 ## Listener ##
 home_position_set = False
 
@@ -46,15 +54,15 @@ inputSize = (640, 640)
 opts = ort.SessionOptions()
 opts.intra_op_num_threads = 4
 opts.inter_op_num_threads = 1
-session = ort.InferenceSession(sett.model, sess_options=opts)
+session = ort.InferenceSession(args.model, sess_options=opts)
 input_name = session.get_inputs()[0].name
 output_0_name = session.get_outputs()[0].name
 
 # Import and Split Video
-if sett.camera == False:
-    cap = cv2.VideoCapture(sett.vid_path)
+if args.camera == False:
+    cap = cv2.VideoCapture(args.vid_path)
 else:
-    cap = cv2.VideoCapture(sett.cameraID)
+    cap = cv2.VideoCapture(args.cameraID)
 frm_count = 0
 
 # Read cap once to get constants
@@ -66,7 +74,7 @@ if cap.isOpened():
     ################################################################################################
     # Start mission
     ################################################################################################
-    home_position_set = sett.simulation
+    home_position_set = args.simulation
     # wait for a home position lock
     while not home_position_set:
         print("Waiting for home position...")
@@ -81,7 +89,7 @@ if cap.isOpened():
     print(" Lon: %s" % vehicle.location.global_relative_frame.lon)
     print(" Lat: %s" % vehicle.location.global_relative_frame.lat)
     # Change to AUTO mode
-    mavl.PX4setMode(sett.MAV_MODE_AUTO, vehicle)
+    mavl.PX4setMode(args.MAV_MODE_AUTO, vehicle)
     time.sleep(1)
     # get global position
     home = vehicle.location.global_relative_frame
@@ -104,7 +112,7 @@ while (cap.isOpened()):
     vy = vehicle.velocity[1]
     vz = vehicle.velocity[2]
 
-    if simulation == True:
+    if args.simulation == True:
         latitude = 0
         longitude = 0
         altitude = 0
@@ -137,19 +145,19 @@ while (cap.isOpened()):
     else:
         boxes_sorted = boxes
     # apply NMS
-    rem_bbox = c4dcnn.FilterBoxesNMS(boxes, sett.thresh)
+    rem_bbox = c4dcnn.FilterBoxesNMS(boxes, args.thresh)
     rem_bbox = np.array(rem_bbox)
 
     # Add artichoke count to out Msg
     outMSG = outMSG + c4dcnn.formatPlantCnt(rem_bbox.shape[0], 3)
 
     # Print Count / BBoxes on Frame
-    if sett.artichokeCount == True:
+    if args.artichokeCount == True:
         print(rem_bbox.shape[0])
-    if sett.boxOnFrame == True:
+    if args.boxOnFrame == True:
         # Print Boxes on frame and write frames
         (img_array, frm_count) = c4dcnn.PrintBBoxOnFrame(frame, rem_bbox, frm_count, img_array)
-        if not sett.full_video:
+        if not args.full_video:
             if frm_count > num_of_frames:
                 break
         else:
@@ -163,7 +171,7 @@ cap.release()
 cv2.destroyAllWindows()
 
 ##  Write Video avi ##
-if sett.write_video == True:
+if args.write_video == True:
     c4dcnn.WriteC4DVideo(img_array)
 
 # Close vehicle object before exiting script
