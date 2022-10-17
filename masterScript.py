@@ -12,29 +12,22 @@
 import time, cv2, datetime
 
 import numpy as np
-#import onnxruntime as ort
-import sys
-
+import onnxruntime as ort
 
 from c4d_sw import c4dCnnPkg as c4dcnn
 from c4d_sw import pymavlinkPkg as mavl
 from c4d_sw import c4dSettings as sett
 from c4d_sw import aesHelperPkg as aesh
-args = sett.manipulate_args()
-print("Printing ARGS")
-print(args.simulation)
-print(args.camera)
-print(args.model)
 
-print(args)
 # import subprocess
 import subprocess
 
 ################################################################################################
 # Init
 ################################################################################################
-vehicle = mavl.initialize_mavlink(args.PX4dev)
-print("\n!!!!!")
+args = sett.manipulate_args()
+vehicle = mavl.initialize_mavlink(args.connectPX4)
+
 ## Listener ##
 home_position_set = False
 
