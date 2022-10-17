@@ -8,7 +8,7 @@ import sys
 
 def manipulate_args():
     # Parse connection argument
-    parser = argparse.ArgumentParser()
+    #parser = argparse.ArgumentParser()
     parser.add_argument("--simulation", action='store', help="Bypass wait for GPS lock loop for Simulation", default=False)
     parser.add_argument("--PX4dev", action='store', help="Path of PX4 device (default /dev/ttyACM0", nargs='?', default='/dev/ttyACM0')
     parser.add_argument("--MAV_MODE_AUTO", action='store', help="Mavlink mode (default 4)", default=4)
@@ -25,7 +25,7 @@ def manipulate_args():
     parser.add_argument("--thresh", action='store', help="set bbox confidence threshold", default=0.2)
     parser.add_argument("--num_of_frames", action='store', help="set number of frames from input video", default=100)
 
-    args = parser.parse_args()
+    #args = parser.parse_args()
 
     #########################################################
     ## Manipulate Args
