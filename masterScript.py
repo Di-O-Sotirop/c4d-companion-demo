@@ -133,7 +133,7 @@ while (cap.isOpened()):
     mOutputRow = session.get_outputs()[0].shape[1]  # 25200
     mOutputColumn = session.get_outputs()[0].shape[2]  # 6
 
-    boxes = np.array(c4dcnn.outputPreprocess(result_0, mOutputRow, mOutputColumn, frame))
+    boxes = np.array(c4dcnn.outputPreprocess(result_0, mOutputRow, mOutputColumn, frame, (640,640)))
 
     # Sort Boxes for NMS
     if boxes.shape[0] > 1:
