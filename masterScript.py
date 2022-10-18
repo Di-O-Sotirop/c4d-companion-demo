@@ -145,7 +145,7 @@ while (cap.isOpened()):
     rem_bbox = np.array(rem_bbox)
 
     # Add artichoke count to out Msg
-    outMSG = outMSG + c4dcnn.formatPlantCnt(rem_bbox.shape[0], 3)
+    outMSG = outMSG + aesh.formatPlantCnt(rem_bbox.shape[0], 3)
 
     # Print Count / BBoxes on Frame
     if args.artichokeCount:
