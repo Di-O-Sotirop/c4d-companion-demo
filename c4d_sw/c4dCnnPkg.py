@@ -55,7 +55,7 @@ def inputPreprocess(frame, inputSize):
 def outputPreprocess(result_0, mOutputRow, mOutputColumn, frame):
     # flattening the output [][][] -> []
     outputs = []
-    (canH, canW, scaleW, scaleH, padFactor) = frameSpecs(frame)
+    (canH, canW, scaleW, scaleH, padFactor) = frameSpecs(frame, (640,640))
 
     for i in range(mOutputRow):
         for j in range(mOutputColumn):
