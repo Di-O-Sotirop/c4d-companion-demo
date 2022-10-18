@@ -3,24 +3,13 @@ from pymavlink import mavutil
 import pymavlink
 import dronekit
 
-import argparse, math, time
+import math, time
 
-def initialize_mavlink(connection_string='/dev/ttyACM0'):
-    MAV_MODE_AUTO = 4
-    # https://github.com/PX4/PX4-Autopilot/blob/master/Tools/mavlink_px4.py
 
-    # Parse connection argument
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--connect", help="connection string")
-    args = parser.parse_args()
-
-    if args.connect:
-        connection_string = args.connect
-
+def initialize_mavlink(connection_string):
     # Connect to the Vehicle
     print("Connecting")
     return connect(connection_string, wait_ready=True)
-
 
 
 def PX4setMode(mavMode, vehicle):
@@ -29,8 +18,6 @@ def PX4setMode(mavMode, vehicle):
                                           mavMode,
                                           0, 0, 0, 0, 0, 0)
 
-#def PX4changeToAuto():
-#    PX4setMode(mavMode)
 def get_location_offset_meters(original_location, dNorth, dEast, alt):
     """
     Returns a LocationGlobal object containing the latitude/longitude `dNorth` and `dEast` metres from the
