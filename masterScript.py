@@ -26,7 +26,8 @@ import subprocess
 # Init
 ################################################################################################
 args = sett.manipulate_args()
-vehicle = mavl.initialize_mavlink(args.connectPX4)
+print(args.connectPX4)
+vehicle = mavl.initialize_mavlink(connection_string='/dev/ttyACM0')
 
 ## Listener ##
 home_position_set = False
@@ -38,6 +39,8 @@ def listener(self, name, home_position):
     global home_position_set
     home_position_set = True
 
+
+print("Listener Created")
 
 ## CNN Init ##
 img_array = []
@@ -52,7 +55,7 @@ input_name = session.get_inputs()[0].name
 output_0_name = session.get_outputs()[0].name
 
 # Import and Split Video
-if args.camera == False:
+if ~args.camera:
     cap = cv2.VideoCapture(args.vid_path)
 else:
     cap = cv2.VideoCapture(args.cameraID)
@@ -61,7 +64,7 @@ frm_count = 0
 # Read cap once to get constants
 if cap.isOpened():
     ret, frame = cap.read()
-    if ret == False:
+    if ~ret:
         print('No Ret')
 
     ################################################################################################
@@ -105,24 +108,24 @@ while (cap.isOpened()):
     vy = vehicle.velocity[1]
     vz = vehicle.velocity[2]
 
-    if args.simulation == True:
+    if args.simulation:
         latitude = 0
         longitude = 0
         altitude = 0
         vx = 0
         vy = 0
         vz = 0
-    outMSG = outMSG + ',' + aesh.formatNumeric(latitude, 2, 10) + ',' + aesh.formatNumeric(longitude, 2,
-                                                                                           10) + ',' + aesh.formatNumeric(
-        altitude, 2, 10)
+    outMSG = outMSG + ',' + aesh.formatNumeric(latitude, 2, 10) \
+             + ',' + aesh.formatNumeric(longitude, 2, 10) \
+             + ',' + aesh.formatNumeric(altitude, 2, 10)
     # Capture Speed
-    outMSG = outMSG + ',' + aesh.formatNumeric(vx, 2, 7) + ',' + aesh.formatNumeric(vy,2, 7) + ',' + aesh.formatNumeric(vz, 2, 7) + ','
-
+    outMSG = outMSG + ',' + aesh.formatNumeric(vx, 2, 7) \
+             + ',' + aesh.formatNumeric(vy, 2, 7) \
+             + ',' + aesh.formatNumeric(vz, 2, 7) + ','
     ret, frame = cap.read()
-    if ret == False:
+    if ~ret:
         print('escaping')
         break
-
     data = c4dcnn.inputPreprocess(frame, (640, 640))
     ###########################INFERENCE_WITH_ONNXRUNTIME###################################
     [result_0] = session.run([output_0_name], {input_name: data})
@@ -145,9 +148,9 @@ while (cap.isOpened()):
     outMSG = outMSG + c4dcnn.formatPlantCnt(rem_bbox.shape[0], 3)
 
     # Print Count / BBoxes on Frame
-    if args.artichokeCount == True:
+    if args.artichokeCount:
         print(rem_bbox.shape[0])
-    if args.boxOnFrame == True:
+    if args.boxOnFrame:
         # Print Boxes on frame and write frames
         (img_array, frm_count) = c4dcnn.PrintBBoxOnFrame(frame, rem_bbox, frm_count, img_array)
         if not args.full_video:
@@ -164,7 +167,7 @@ cap.release()
 cv2.destroyAllWindows()
 
 ##  Write Video avi ##
-if args.write_video == True:
+if args.write_video:
     c4dcnn.WriteC4DVideo(img_array)
 
 # Close vehicle object before exiting script
