@@ -1,7 +1,0 @@
-nose
-sphinx
-dronekit~=2.9.2
-pymavlink~=2.4.35
-setuptools~=60.2.0
-opencv-python~=4.6.0.66
-numpy~=1.23.3
