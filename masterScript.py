@@ -55,7 +55,7 @@ input_name = session.get_inputs()[0].name
 output_0_name = session.get_outputs()[0].name
 
 # Import and Split Video
-if ~args.camera:
+if not args.camera:
     cap = cv2.VideoCapture(args.vid_path)
 else:
     cap = cv2.VideoCapture(args.cameraID)
@@ -64,7 +64,7 @@ frm_count = 0
 # Read cap once to get constants
 if cap.isOpened():
     ret, frame = cap.read()
-    if ~ret:
+    if not ret:
         print('No Ret')
 
     ################################################################################################
@@ -123,7 +123,7 @@ while (cap.isOpened()):
              + ',' + aesh.formatNumeric(vy, 2, 7) \
              + ',' + aesh.formatNumeric(vz, 2, 7) + ','
     ret, frame = cap.read()
-    if ~ret:
+    if not ret:
         print('escaping')
         break
     data = c4dcnn.inputPreprocess(frame, (640, 640))
