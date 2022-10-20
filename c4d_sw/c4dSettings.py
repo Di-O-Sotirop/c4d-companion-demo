@@ -32,4 +32,8 @@ def manipulate_args():
 
     args = parser.parse_args()
     return args
+def printV(str,v):
+    if v:
+        print(str)
+        
 
