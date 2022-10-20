@@ -29,6 +29,7 @@ def manipulate_args():
     parser.add_argument("--thresh", action='store', help="set bbox confidence threshold", default=0.2)
     parser.add_argument("--num_of_frames", action='store', help="set number of frames from input video", default=100)
     parser.add_argument("--print_msg", action='store', help="print the output message to console", default=False)
+    parser.add_argument("--verbose", action='store_true', help="print messages for debugging")
 
     args = parser.parse_args()
     return args
