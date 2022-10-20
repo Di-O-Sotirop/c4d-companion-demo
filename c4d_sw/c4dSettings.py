@@ -23,7 +23,7 @@ def manipulate_args():
     parser.add_argument("--write_frames", action='store', help="write frames to png", default=False)
     parser.add_argument("--write_video", action='store', help="write frames to avi", default=False)
     parser.add_argument("--full_video", action='store', help="write whole video", default=False)
-    parser.add_argument("--camera", action='store', help="enable camera input", default=False)
+    parser.add_argument("--camera", action='store', help="enable camera input", default=True)
     parser.add_argument("--artichokeCount", action='store', help="print artichoke count", default=False)
     parser.add_argument("--cameraID", action='store', help="Choose camera", default=0)
     parser.add_argument("--thresh", action='store', help="set bbox confidence threshold", default=0.2)
