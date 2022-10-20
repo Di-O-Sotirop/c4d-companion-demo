@@ -39,7 +39,7 @@ def listener(self, name, home_position):
     global home_position_set
     home_position_set = True
 
-sett.printV("Listener Created..")
+sett.printV("Listener Created..",v)
 
 ## CNN Init ##
 img_array = []
@@ -52,18 +52,18 @@ opts.inter_op_num_threads = 1
 session = ort.InferenceSession(args.model, sess_options=opts)
 input_name = session.get_inputs()[0].name
 output_0_name = session.get_outputs()[0].name
-sett.printV("ONNX runtime session initialized...")
-sett.printV(">intra threads = " + str(opts.intra_op_num_threads))
-sett.printV(">inter threads = " + str(opts.inter_op_num_threads))
+sett.printV("ONNX runtime session initialized...",v)
+sett.printV(">intra threads = " + str(opts.intra_op_num_threads),v)
+sett.printV(">inter threads = " + str(opts.inter_op_num_threads),v)
 
 
 # Import and Split Video
 if not args.camera:
     cap = cv2.VideoCapture(args.vid_path)
-    sett.printV("Video Input from " + str(args.vid_path))
+    sett.printV("Video Input from " + str(args.vid_path),v)
 else:
     cap = cv2.VideoCapture(args.cameraID)
-    sett.printV("Camera Input from cam" + str(args.cameraID))
+    sett.printV("Camera Input from cam" + str(args.cameraID),v)
 frm_count = 0
 
 # Read cap once to get constants
@@ -80,17 +80,17 @@ else:
     home_position_set = args.simulation
     # wait for a home position lock
     while not home_position_set:
-        sett.printV("Waiting for home position...")
+        sett.printV("Waiting for home position...",v)
         time.sleep(1)
 
     # Display basic vehicle state
     # print( " Type: %s" % vehicle._vehicle_type)
     # print( " Armed: %s" % vehicle.armed)
     # print( " System status: %s" % vehicle.system_status.state)
-    sett.printV(" GPS: %s" % vehicle.gps_0)
-    sett.printV(" Alt: %s" % vehicle.location.global_relative_frame.alt)
-    sett.printV(" Lon: %s" % vehicle.location.global_relative_frame.lon)
-    sett.printV(" Lat: %s" % vehicle.location.global_relative_frame.lat)
+    sett.printV(" GPS: %s" % vehicle.gps_0,v)
+    sett.printV(" Alt: %s" % vehicle.location.global_relative_frame.alt,v)
+    sett.printV(" Lon: %s" % vehicle.location.global_relative_frame.lon,v)
+    sett.printV(" Lat: %s" % vehicle.location.global_relative_frame.lat,v)
     # Change to AUTO mode
     mavl.PX4setMode(args.MAV_MODE_AUTO, vehicle)
     time.sleep(1)
@@ -114,7 +114,7 @@ while (cap.isOpened()):
     vx = vehicle.velocity[0]
     vy = vehicle.velocity[1]
     vz = vehicle.velocity[2]
-    sett.printV("Time and Position captured...")
+    sett.printV("Time and Position captured...",v)
     if args.simulation:
         latitude = 0
         longitude = 0
@@ -129,7 +129,7 @@ while (cap.isOpened()):
     outMSG = outMSG + ',' + aesh.formatNumeric(vx, 2, 7) \
              + ',' + aesh.formatNumeric(vy, 2, 7) \
              + ',' + aesh.formatNumeric(vz, 2, 7) + ','
-    sett.printV("plaintext message formatted...")
+    sett.printV("plaintext message formatted...",v)
     ret, frame = cap.read()
     if not ret:
         print('escaping')
@@ -140,9 +140,9 @@ while (cap.isOpened()):
     #############################PREPROCESS OUTPUT############################################
     mOutputRow = session.get_outputs()[0].shape[1]  # 25200
     mOutputColumn = session.get_outputs()[0].shape[2]  # 6
-    sett.printV("ONNX run executed...")
+    sett.printV("ONNX run executed...",v)
     boxes = np.array(c4dcnn.outputPreprocess(result_0, mOutputRow, mOutputColumn, frame))
-    sett.printV("Preprocessing of output done...")
+    sett.printV("Preprocessing of output done...",v)
     # Sort Boxes for NMS
     if boxes.shape[0] > 1:
         boxes_sorted = boxes[np.argsort(-1 * boxes[:, 4])]
@@ -151,7 +151,7 @@ while (cap.isOpened()):
     # apply NMS
     rem_bbox = c4dcnn.FilterBoxesNMS(boxes, args.thresh)
     rem_bbox = np.array(rem_bbox)
-    sett.printV("Postprocessing of output done...")
+    sett.printV("Postprocessing of output done...",v)
     # Add artichoke count to out Msg
     outMSG = outMSG + aesh.formatPlantCnt(rem_bbox.shape[0], 3)
 
