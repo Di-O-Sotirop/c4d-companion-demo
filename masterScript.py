@@ -58,7 +58,7 @@ sett.printV(">inter threads = " + str(opts.inter_op_num_threads),v)
 
 
 # Import and Split Video
-if not args.camera:
+if args.nocamera:
     cap = cv2.VideoCapture(args.vid_path)
     sett.printV("Video Input from " + str(args.vid_path),v)
 else:
