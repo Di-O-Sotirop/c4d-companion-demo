@@ -1,0 +1,2 @@
+/usr/bin/ar qc libLibsModule.a  CMakeFiles/LibsModule.dir/src/inc/aes256.c.o
+/usr/bin/ranlib libLibsModule.a

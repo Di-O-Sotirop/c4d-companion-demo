@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/dsotiropoulos/comp4drones/c4d-anomaly-detection/sw/apps/aes-128/sw-aarch64/src/inc/aes256.c
+aes256.h
+/home/dsotiropoulos/comp4drones/c4d-anomaly-detection/sw/apps/aes-128/sw-aarch64/src/inc/aes256.h
+
+/home/dsotiropoulos/comp4drones/c4d-anomaly-detection/sw/apps/aes-128/sw-aarch64/src/inc/aes256.h
+stdio.h
+-
+

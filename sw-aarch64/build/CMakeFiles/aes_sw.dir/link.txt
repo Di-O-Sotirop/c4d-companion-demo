@@ -1,0 +1,1 @@
+aarch64-linux-gnu-gcc   -g -O3 -std=c++11 -O3 -DNDEBUG   CMakeFiles/aes_sw.dir/src/main.cpp.o  -o aes_sw   -L/home/dsotiropoulos/comp4drones/c4d-anomaly-detection/sw/apps/aes-128/sw-aarch64/build  -Wl,-rpath,/home/dsotiropoulos/comp4drones/c4d-anomaly-detection/sw/apps/aes-128/sw-aarch64/build libLibsModule.a -lpthread 
