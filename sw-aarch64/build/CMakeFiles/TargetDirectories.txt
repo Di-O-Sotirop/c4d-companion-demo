@@ -1,4 +1,0 @@
-/home/dsotiropoulos/comp4drones/c4d-anomaly-detection/sw/apps/aes-128/sw-aarch64/build/CMakeFiles/rebuild_cache.dir
-/home/dsotiropoulos/comp4drones/c4d-anomaly-detection/sw/apps/aes-128/sw-aarch64/build/CMakeFiles/edit_cache.dir
-/home/dsotiropoulos/comp4drones/c4d-anomaly-detection/sw/apps/aes-128/sw-aarch64/build/CMakeFiles/aes_sw.dir
-/home/dsotiropoulos/comp4drones/c4d-anomaly-detection/sw/apps/aes-128/sw-aarch64/build/CMakeFiles/LibsModule.dir
