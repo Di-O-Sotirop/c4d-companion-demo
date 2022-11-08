@@ -18,7 +18,7 @@ def manipulate_args():
     parser.add_argument("--model",          action='store',         help=".onnx model filename", default="c4d-aitek-v1.onnx")
     parser.add_argument("--vid_path",       action='store',         help="path to sample video for simulation",
                         default="/samples/2022-01-28_15m.mp4")
-    parser.add_arguement("--set_encrypt_script", action='store',    help="set the path to encryption script", default="encryptDemos_16B.sh")
+    parser.add_argument("--set_encrypt_script", action='store',    help="set the path to encryption script", default="encryptDemos_16B.sh")
     parser.add_argument("--boxOnFrame",     action='store_true',    help="print bboxes on frame")
     parser.add_argument("--write_frames",   action='store_true',    help="write frames to png")
     parser.add_argument("--write_video",    action='store_true',    help="write frames to avi")
