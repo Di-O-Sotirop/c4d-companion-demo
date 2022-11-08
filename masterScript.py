@@ -170,8 +170,7 @@ while (cap.isOpened()):
     if args.print_msg:
         print(outMSG)
     ## Perform AES Encryption, generate files ##
-    # subprocess.call("encryptDemos.sh", outMSG)
-    # subprocess.call("encryptDemos.sh", str(LonLatAlt[0])+ ' ' + str(LonLatAlt[1]), str(LonLatAlt[2])+ ' ' + str(rem_bbox.shape[0]))
+    subprocess.call(sett.set_encrypt_script, outMSG)
 
 cap.release()
 cv2.destroyAllWindows()
