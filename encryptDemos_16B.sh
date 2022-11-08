@@ -4,7 +4,7 @@ aesX="aes_sw"
 len=${#1}
 aesstep=16
 
-rm cipher.txt
+rm cipher_16B.txt
 
 for i in $(seq 0 $aesstep $len)
 do
