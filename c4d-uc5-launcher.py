@@ -34,6 +34,7 @@ from modules import c4d-uc5-mavlink-helper as px4
 from modules import c4d-uc5-aes-helper as c4dAes
 
 import subprocess
+import serial
 
 ################################################################################################
 # Init
@@ -45,9 +46,8 @@ if verbose:
     print("[C4D] Connect to PX4 at: " + c4dConfig.px4_device)
 vehicle = px4.initialize_mavlink(connection_string=c4dConfig.px4_device)
 
-## PX4 Listener ##
+# PX4 Listener
 vehicle_position_init = False
-
 # Create a message listener for "HOME_POSITION" message
 @vehicle.on_message('HOME_POSITION')
 def vehicle_position_callback(self, name, home_position):
@@ -61,17 +61,16 @@ if verbose:
 img_array = []
 inputSize = (640, 640)
 
-# Runtime Configuration
-opts = ort.SessionOptions()
-opts.intra_op_num_threads = 4
-opts.inter_op_num_threads = 1
-session = ort.InferenceSession(c4dConfig.crop_detector_model, sess_options=opts)
-input_name = session.get_inputs()[0].name
-output_0_name = session.get_outputs()[0].name
+onnxRtOpt = ort.SessionOptions()
+onnxRtOpt.intra_op_num_threads = 4
+onnxRtOpt.inter_op_num_threads = 1
+onnxRt = ort.InferenceSession(c4dConfig.crop_detector_model, sess_options=onnxRtOpt)
+input_name = onnxRt.get_inputs()[0].name
+output_0_name = onnxRt.get_outputs()[0].name
 if verbose:
-    print("[C4D][ONNX] Runtime session initialized...")
-    print("[C4D][ONNX] Intra Number of threads = " + str(opts.intra_op_num_threads))
-    print("[C4D][ONNX] Inter Number of threads = " + str(opts.inter_op_num_threads))
+    print("[C4D][ONNX] ONNX Runtime initialized...")
+    print("[C4D][ONNX] ONNX Runtime Intra Threads = " + str(onnxRtOpt.intra_op_num_threads))
+    print("[C4D][ONNX] ONNX Runtime Inter Threads = " + str(onnxRtOpt.inter_op_num_threads))
 
 
 # Import and Split Video
@@ -89,37 +88,36 @@ frm_count = 0
 
 # Read cap once to get constants
 if not cap.isOpened():
-    print("[C4D] ERROR: cap is not open. Program exiting...")
-else:
-    ret, frame = cap.read()
-    if not ret:
-        print('No Ret')
+    sys.exit("[C4D] ERROR: Serial Port not available at " + str(c4dConfig.transmitter_device)")
     
-    ################################################################################################
-    # Start mission
-    ################################################################################################
-    vehicle_position_init = c4dConfig.px4_skip_wait_position
-    # wait for a home position lock
-    while not vehicle_position_init:
-        print("[C4D] Waiting for home position...")
-        time.sleep(1)
-
-    # Display basic vehicle state
-    print("[C4D][Vehicle] Type: %s" % vehicle._vehicle_type)
-    print("[C4D][Vehicle] Armed: %s" % vehicle.armed)
-    print("[C4D][Vehicle] System status: %s" % vehicle.system_status.state)
-    print("[C4D][Vehicle] GPS: %s" % vehicle.gps_0)
-    print("[C4D][Vehicle] Alt: %s" % vehicle.location.global_relative_frame.alt)
-    print("[C4D][Vehicle] Lon: %s" % vehicle.location.global_relative_frame.lon)
-    print("[C4D][Vehicle] Lat: %s" % vehicle.location.global_relative_frame.lat)
-
-    # Change to AUTO mode
-    px4.PX4setMode(c4dConfig.px4_mavlink_mode, vehicle)
+################################################################################################
+# Start mission
+################################################################################################
+vehicle_position_init = c4dConfig.px4_skip_wait_position
+# wait for a home position lock
+while not vehicle_position_init:
+    print("[C4D][Vehicle] Waiting for home position...")
     time.sleep(1)
 
-################################################################################################
-# MAIN LOOP
-################################################################################################
+# Display basic vehicle state
+print("[C4D][Vehicle] Type: %s" % vehicle._vehicle_type)
+print("[C4D][Vehicle] Armed: %s" % vehicle.armed)
+print("[C4D][Vehicle] System status: %s" % vehicle.system_status.state)
+print("[C4D][Vehicle] GPS: %s" % vehicle.gps_0)
+print("[C4D][Vehicle] Alt: %s" % vehicle.location.global_relative_frame.alt)
+print("[C4D][Vehicle] Lon: %s" % vehicle.location.global_relative_frame.lon)
+print("[C4D][Vehicle] Lat: %s" % vehicle.location.global_relative_frame.lat)
+
+# Change to AUTO mode
+px4.PX4setMode(c4dConfig.px4_mavlink_mode, vehicle)
+time.sleep(1)
+
+commDevice = None
+if not c4dConfig.skip_communication
+    commDevice = serial.Serial(c4dConfig.transmitter_device, c4dConfig.transmitter_boudrate, timeout=0.01)
+    if commDevice == None:
+        sys.exit("[C4D] ERROR: Serial Port not available at " + str(c4dConfig.transmitter_device)")
+
 while (cap.isOpened()):
 
     # Capture Timestamp
@@ -172,13 +170,13 @@ while (cap.isOpened()):
     data = c4dDetector.inputPreprocess(frame, (640, 640))
 
     # ONNX Inference
-    [result_0] = session.run([output_0_name], {input_name: data})
+    [result_0] = onnxRt.run([output_0_name], {input_name: data})
     if verbose:
         print("[C4D][ONNX] Inference Executed for frame " + str(frm_count))
 
     # ONNX Post-process
-    mOutputRow = session.get_outputs()[0].shape[1]  # 25200
-    mOutputColumn = session.get_outputs()[0].shape[2]  # 6
+    mOutputRow = onnxRt.get_outputs()[0].shape[1]  # 25200
+    mOutputColumn = onnxRt.get_outputs()[0].shape[2]  # 6
 
     # Post-processes: boxes extraction
     boxes = np.array(c4dDetector.outputPreprocess(result_0, mOutputRow, mOutputColumn, frame))
@@ -200,7 +198,7 @@ while (cap.isOpened()):
     if verbose:
         print("[C4D] Final Plain Message: " + outMSG)
 
-
+    # Collect Frames (if required)
     if c4dConfig.output_video_path:
         # Print Boxes on frame and write frames
         if c4dConfig.show_crop_detection:

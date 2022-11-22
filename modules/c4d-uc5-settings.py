@@ -52,6 +52,7 @@ def readConfiguration():
     parser.add_argument("--skip_encryption", action='store_true', help="Set to True for skipping the encryption step.", default=False)
     parser.add_argument("--skip_communication", action='store_true', help="Set to True for skipping the communicatio step.", default=False)
     parser.add_argument("--transmitter_device", action='store', help="Set the serial device for outboud communication", default="/dev/ttyUSB0")
+    parser.add_argument("--transmitter_boudrate", action='store', help="Set the serial device boudrate", default=9600)
 
     # Verbose
     parser.add_argument("--verbose", action='store_true', help="print messages for debugging", default=False)
