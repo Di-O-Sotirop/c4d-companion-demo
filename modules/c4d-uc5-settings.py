@@ -31,21 +31,21 @@ def readConfiguration():
     parser.add_argument("--vehicle_id", action='store', help="Vehicle Identifier used for communication", default="0000000000000000")
 
     # PX4 Connection and Configuration
-    parser.add_argument("--px4_device", action='store', help="Path of PX4 device (default /dev/ttyACM0)", nargs=1, default="/dev/ttyACM0")
-    parser.add_argument("--px4_mavlink_mode", action='store', help="Mavlink mode (default 4)", nargs=1, default=4)
+    parser.add_argument("--px4_device", action='store', help="Path of PX4 device (default /dev/ttyACM0)", default="/dev/ttyACM0")
+    parser.add_argument("--px4_mavlink_mode", action='store', help="Mavlink mode (default 4)", default=4)
     parser.add_argument("--px4_skip_wait_position", action='store_true', help="Bypass wait for GPS lock loop", default=False)
     parser.add_argument("--px4_use_fake_position", action='store_true', help="Use fake GPS position (for simulation purpose)", default=False)
 
     # Input Video Configuration
-    parser.add_argument("--input_video_path", action='store', help="Path to input video. NOTE: that if this argument is set, camera frames are skipped.", default="")
+    parser.add_argument("--input_video_path", action='store', help="Path to input video. NOTE: that if this argument is set, camera frames are skipped.", default=None)
     parser.add_argument("--input_camera_device_id", action='store', help="Input camera ID", default=0)
-    parser.add_argument("--set_max_num_of_frames", action='store', help="Set max number of frames processed (for simulation purpose)", default=-1)
+    parser.add_argument("--set_max_num_of_frames", action='store', help="Set max number of frames processed (for simulation purpose)", default=None)
 
     # Processing Configuration
     parser.add_argument("--crop_detector_model", action='store', help="ONNX DL Model for crop detection", default="models/c4d-aitek-v1.onnx")
     parser.add_argument("--crop_detector_thresh", action='store', help="Set ONNX bounding box confidence threshold", default=0.2)
     parser.add_argument("--show_crop_detection", action='store_true', help="Show on the frame the bboxes", default=False)
-    parser.add_argument("--output_video_path", action='store', help="Write video output. NOTE: if --show_crop_detection option is active, the video will contain the detected bboxes", default="")
+    parser.add_argument("--output_video_path", action='store', help="Write video output. NOTE: if --show_crop_detection option is active, the video will contain the detected bboxes", default=None)
 
     
     # Telemetry Encryption and transmission Configuration
