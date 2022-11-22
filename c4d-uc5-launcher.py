@@ -226,7 +226,7 @@ cv2.destroyAllWindows()
 
 ##  Write Video avi ##
 if c4dConfig.write_video:
-    print("[C4D][ONNX] Writing Video Output at " + str(c4dConfig.output_video_path)
+    print("[C4D][ONNX] Writing Video Output at " + str(c4dConfig.output_video_path))
     c4dDetector.WriteC4DVideo(c4dConfig.output_video_path, img_array)
 
 # Close vehicle object before exiting script
