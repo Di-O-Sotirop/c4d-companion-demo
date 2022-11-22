@@ -24,13 +24,13 @@
 #############################################################################
 
 #!/bin/bash
-aesX="aes-hw-accel-wp5-08-rot"
+aesX="bin/aes-hw-accel-wp5-08-rot"
 len=${#1}
 aesstep=16
 
-aes_output_file="aes-hw-accel-wp5-08-rot.out"
-aes_tmp="aes-hw-accel-wp5-08-rot.tmp"
-encrypted_msg="encrypted-msg.out"
+aes_output_file="output/aes-hw-accel-wp5-08-rot.out"
+aes_tmp="output/aes-hw-accel-wp5-08-rot.tmp"
+encrypted_msg="output/encrypted-msg.out"
 
 cat /dev/null > $encrypted_msg
 for i in $(seq 0 $aesstep $len)
