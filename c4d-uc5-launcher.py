@@ -28,7 +28,7 @@ import time, cv2, datetime
 import numpy as np
 import onnxruntime as ort
 
-from modules import c4d_uc5_c4dings as c4d
+from modules import c4d_uc5_settings as c4d
 from modules import c4d_uc5_onnx_helper as c4dDetector
 from modules import c4d_uc5_mavlink_helper as px4
 from modules import c4d_uc5_aes_helper as c4dAes
