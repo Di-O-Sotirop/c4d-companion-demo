@@ -25,7 +25,7 @@
 
 import cv2 as cv2
 import numpy as np
-from . import c4d-uc5-settings as sett
+from . import c4d_uc5_settings as sett
 
 def ResizeAndPad(image, inputSize):
     canH = image.shape[0]
