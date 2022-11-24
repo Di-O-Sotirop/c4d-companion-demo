@@ -1,12 +1,12 @@
 # C4D UC5 Demo SW Documentation (v0.3)
 The demo consists of a Kria board with PX4 equipped with a camera and a GPS module. The board is running an artichoke detection neural network and an AES encryptor.
 
-## Components 
-- **Bin\\**: Folder containing the AES binary file and the script to execute the binary and manage the output.
-- **Docs\\**: Folder containing documentation
-- **Models\\**: Folder containing the AITEK plant detector CNN model ONNX file.
-- **Modules\\**: Folder containing custom library files in python for the c4d-uc5-launcher.py script.
-- **Output\\**: Folder containing files with the encrypted output of the project as well as an encryption report.
+## Content of the repo 
+- `Bin\`: Folder containing the AES binary file and the script to execute the binary and manage the output.
+- `Docs\`: Folder containing documentation
+- `Models\`: Folder containing the AITEK plant detector CNN model ONNX file.
+- `Modules\`: Folder containing custom library files in python for the c4d-uc5-launcher.py script.
+- `Output\`: Folder containing files with the encrypted output of the project as well as an encryption report.
 
 ## C4D UC5 Demo Message Format
 For each frame acquired by the camera, an output string of comma separated values (83 characters + 8 commas) is generated, encrypted and trasmitted to the dashboard by the companion computer.
