@@ -121,103 +121,123 @@ if not c4dConfig.px4_use_fake_position:
 ################################################################################################
 # MAIN LOOP
 ################################################################################################
-while (cap.isOpened()):
+try:
+    while (cap.isOpened()):
 
-    # Capture Timestamp
-    curDT = datetime.datetime.now()
-    outMSG = curDT.strftime("%Y%m%d%H%M%S")
+        # Capture Timestamp
+        curDT = datetime.datetime.now()
+        outMSG = curDT.strftime("%Y%m%d%H%M%S")
 
-    # Add IMEI
-    outMSG += ',' + str(c4dConfig.vehicle_id)
+        # Add IMEI
+        outMSG += ',' + str(c4dConfig.vehicle_id)
 
-    # Capture Position
-    if not c4dConfig.px4_use_fake_position:
-        latitude = vehicle.location.global_relative_frame.lat
-        longitude = vehicle.location.global_relative_frame.lon
-        altitude = vehicle.location.global_relative_frame.alt
-        vx = vehicle.velocity[0]
-        vy = vehicle.velocity[1]
-        vz = vehicle.velocity[2]
-    else:
-        latitude = 0
-        longitude = 0
-        altitude = 0
-        vx = 0
-        vy = 0
-        vz = 0
+        # Capture Position
+        if not c4dConfig.px4_use_fake_position:
+            latitude = vehicle.location.global_relative_frame.lat
+            longitude = vehicle.location.global_relative_frame.lon
+            altitude = vehicle.location.global_relative_frame.alt
+            vx = vehicle.velocity[0]
+            vy = vehicle.velocity[1]
+            vz = vehicle.velocity[2]
+        else:
+            latitude = 0
+            longitude = 0
+            altitude = 0
+            vx = 0
+            vy = 0
+            vz = 0
 
-    if verbose:
-        print("[C4D][Vehicle] Alt: %s" % altitude)
-        print("[C4D][Vehicle] Lon: %s" % longitude)
-        print("[C4D][Vehicle] Lat: %s" % latitude)
-    
-    
-    outMSG += ',' + c4dAes.formatNumeric(latitude, 2, 10) \
-             + ',' + c4dAes.formatNumeric(longitude, 2, 10) \
-             + ',' + c4dAes.formatNumeric(altitude, 2, 10)
-    # Capture Speed
-    outMSG += ',' + c4dAes.formatNumeric(vx, 2, 7) \
-             + ',' + c4dAes.formatNumeric(vy, 2, 7) \
-             + ',' + c4dAes.formatNumeric(vz, 2, 7) + ','
-
-    # Read Frame
-    ret, frame = cap.read()
-    if not ret:
-        print('[C4D] Warning: skipping frame...')
-        continue
-    
-    # ONNX Pre-process
-    data = c4dDetector.inputPreprocess(frame, (640, 640))
-
-    # ONNX Inference
-    [result_0] = session.run([output_0_name], {input_name: data})
-    if verbose:
-        print("[C4D][ONNX] Inference Executed for frame " + str(frm_count))
-
-    # ONNX Post-process
-    mOutputRow = session.get_outputs()[0].shape[1]  # 25200
-    mOutputColumn = session.get_outputs()[0].shape[2]  # 6
-
-    # Post-processes: boxes extraction
-    boxes = np.array(c4dDetector.outputPreprocess(result_0, mOutputRow, mOutputColumn, frame))
-
-    # Post-processes: boxes NMS
-    if boxes.shape[0] > 1:
-        boxes_sorted = boxes[np.argsort(-1 * boxes[:, 4])]
-    else:
-        boxes_sorted = boxes
-    rem_bbox = c4dDetector.FilterBoxesNMS(boxes, c4dConfig.crop_detector_thresh)
-    rem_bbox = np.array(rem_bbox)
-
-    if verbose:
-        print("[C4D][ONNX] Post-Processing Executed for frame " + str(frm_count))
-        print("[C4D][ONNX] Crop Detection Output: " + str(rem_bbox.shape[0]) + " plants")
-
-    # Add artichoke count to out Msg
-    outMSG += c4dAes.formatPlantCnt(rem_bbox.shape[0], 3)
-    if verbose:
-        print("[C4D] Final Plain Message: " + outMSG)
-
-    if c4dConfig.output_video_path:
-        # Print Boxes on frame and write frames
-        if c4dConfig.show_crop_detection:
-            frame = c4dDetector.printBBoxes(frame, rem_bbox)        
-        img_array.append(frame)
-
-    # Perform AES Encryption
-    if not c4dConfig.skip_encryption:
-        subprocess.Popen(["/bin/bash", "bin/encrypt.sh", outMSG])
-
-    # Perform Communication
-    if not c4dConfig.skip_communication:
         if verbose:
-            print("[C4D] Do communication")
+            print("[C4D][Vehicle] Alt: %s" % altitude)
+            print("[C4D][Vehicle] Lon: %s" % longitude)
+            print("[C4D][Vehicle] Lat: %s" % latitude)
+        
+        
+        outMSG += ',' + c4dAes.formatNumeric(latitude, 2, 10) \
+                + ',' + c4dAes.formatNumeric(longitude, 2, 10) \
+                + ',' + c4dAes.formatNumeric(altitude, 2, 10)
+        # Capture Speed
+        outMSG += ',' + c4dAes.formatNumeric(vx, 2, 7) \
+                + ',' + c4dAes.formatNumeric(vy, 2, 7) \
+                + ',' + c4dAes.formatNumeric(vz, 2, 7) + ','
 
-    # Count Frames Computed and exit if necessary
-    if c4dConfig.set_max_num_of_frames:
-        if frm_count >= c4dConfig.set_max_num_of_frames:
-            break
-    frm_count += 1
+        # Read Frame
+        ret, frame = cap.read()
+        if not ret:
+            print('[C4D] Warning: skipping frame...')
+            continue
+        
+        # ONNX Pre-process
+        data = c4dDetector.inputPreprocess(frame, (640, 640))
+
+        # ONNX Inference
+        [result_0] = session.run([output_0_name], {input_name: data})
+        if verbose:
+            print("[C4D][ONNX] Inference Executed for frame " + str(frm_count))
+
+        # ONNX Post-process
+        mOutputRow = session.get_outputs()[0].shape[1]  # 25200
+        mOutputColumn = session.get_outputs()[0].shape[2]  # 6
+
+        # Post-processes: boxes extraction
+        boxes = np.array(c4dDetector.outputPreprocess(result_0, mOutputRow, mOutputColumn, frame))
+
+        # Post-processes: boxes NMS
+        if boxes.shape[0] > 1:
+            boxes_sorted = boxes[np.argsort(-1 * boxes[:, 4])]
+        else:
+            boxes_sorted = boxes
+        rem_bbox = c4dDetector.FilterBoxesNMS(boxes, c4dConfig.crop_detector_thresh)
+        rem_bbox = np.array(rem_bbox)
+
+        if verbose:
+            print("[C4D][ONNX] Post-Processing Executed for frame " + str(frm_count))
+            print("[C4D][ONNX] Crop Detection Output: " + str(rem_bbox.shape[0]) + " plants")
+
+        # Add artichoke count to out Msg
+        outMSG += c4dAes.formatPlantCnt(rem_bbox.shape[0], 3)
+        if verbose:
+            print("[C4D] Final Plain Message: " + outMSG)
+
+        if c4dConfig.output_video_path:
+            # Print Boxes on frame and write frames
+            if c4dConfig.show_crop_detection:
+                frame = c4dDetector.printBBoxes(frame, rem_bbox)        
+            img_array.append(frame)
+
+        # Perform AES Encryption
+        encryptedMsg=None
+        if not c4dConfig.skip_encryption:
+            result = subprocess.run(['bin/aes-hw-accel-wp5-08-rot', '-e', outMSG], stdout=subprocess.PIPE, universal_newlines=True)
+            encryptedMsg = result.stdout
+            if verbose:
+                print("[C4D] Encrypted Message: " + encryptedMsg)
+
+        # Perform Communication
+        if not c4dConfig.skip_communication:
+            if verbose:
+                print("[C4D] Do communication")
+
+        # Count Frames Computed and exit if necessary
+        if c4dConfig.set_max_num_of_frames:
+            if frm_count >= int(c4dConfig.set_max_num_of_frames):
+                break
+        frm_count += 1
+
+except KeyboardInterrupt:
+    cap.release()
+    cv2.destroyAllWindows()
+
+    ##  Write Video avi ##
+    if c4dConfig.output_video_path:
+        print("[C4D][ONNX] Writing Video Output at " + str(c4dConfig.output_video_path))
+        c4dDetector.WriteC4DVideo(c4dConfig.output_video_path, img_array)
+
+    # Close vehicle object before exiting scrip
+    if not c4dConfig.px4_use_fake_position:
+        vehicle.close()
+        time.sleep(1)
+    sys.exit()
 
 cap.release()
 cv2.destroyAllWindows()
