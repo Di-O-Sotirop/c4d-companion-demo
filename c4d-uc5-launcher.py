@@ -23,6 +23,7 @@
 #                                                                           #
 #############################################################################
 
+import serial
 import time, cv2, datetime
 import sys
 
@@ -40,7 +41,15 @@ import subprocess
 # Init
 ################################################################################################
 c4dConfig = c4d.readConfiguration()
-verbose = c4dConfig.verbose 
+verbose = c4dConfig.verbose
+
+# Serial Communication handler
+comm=None
+if not c4dConfig.skip_communication:
+    comm = serial.Serial(c4dConfig.transmitter_device, c4dConfig.transmitter_boudrate, timeout=0.050)
+    if verbose:
+        print("[C4D] Connecting Serial Device: " + c4dConfig.transmitter_device)
+
 
 # Vehicle Handler
 vehicle = None
@@ -197,7 +206,7 @@ try:
         # Add artichoke count to out Msg
         outMSG += c4dAes.formatPlantCnt(rem_bbox.shape[0], 3)
         if verbose:
-            print("[C4D] Final Plain Message: " + outMSG)
+            print("[C4D] Plain Message: " + outMSG)
 
         if c4dConfig.output_video_path:
             # Print Boxes on frame and write frames
@@ -215,8 +224,9 @@ try:
 
         # Perform Communication
         if not c4dConfig.skip_communication:
+            comm.write(encryptedMsg.encode())
             if verbose:
-                print("[C4D] Do communication")
+                print("[C4D] Messaged sent to Serial")
 
         # Count Frames Computed and exit if necessary
         if c4dConfig.set_max_num_of_frames:
@@ -225,6 +235,7 @@ try:
         frm_count += 1
 
 except KeyboardInterrupt:
+    # Exception for ctrl-c case
     cap.release()
     cv2.destroyAllWindows()
 
