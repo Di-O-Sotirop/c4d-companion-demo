@@ -54,5 +54,3 @@ def formatPlantCnt(number, total_length):
         outNum = str(number)
         outNum = outNum.zfill(total_length)
     return outNum
-
-

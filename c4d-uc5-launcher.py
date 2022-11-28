@@ -103,7 +103,14 @@ frm_count = 0
 # Read cap once to get constants
 if not cap.isOpened():
     sys.exit("[C4D] ERROR: cap is not open. Program exiting...")
-    
+
+##  Write Video avi ##
+if c4dConfig.output_video_path:
+    print("[C4D] Writing Video Output at " + str(c4dConfig.output_video_path))
+    videoWriter = cv2.VideoWriter(c4dConfig.output_video_path, \
+        cv2.VideoWriter_fourcc(*'XVID'), 20.0, \
+        (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) + 0.5), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) + 0.5)))
+
 ################################################################################################
 # Start mission
 ################################################################################################
@@ -176,43 +183,48 @@ try:
             print('[C4D] Warning: skipping frame...')
             continue
         
-        # ONNX Pre-process
-        data = c4dDetector.inputPreprocess(frame, (640, 640))
+        if not c4dConfig.skip_inference:
+            # ONNX Pre-process
+            data = c4dDetector.inputPreprocess(frame, (640, 640))
 
-        # ONNX Inference
-        [result_0] = session.run([output_0_name], {input_name: data})
-        if verbose:
-            print("[C4D][ONNX] Inference Executed for frame " + str(frm_count))
+            # ONNX Inference
+            [result_0] = session.run([output_0_name], {input_name: data})
+            if verbose:
+                print("[C4D][ONNX] Inference Executed for frame " + str(frm_count))
 
-        # ONNX Post-process
-        mOutputRow = session.get_outputs()[0].shape[1]  # 25200
-        mOutputColumn = session.get_outputs()[0].shape[2]  # 6
+            # ONNX Post-process
+            mOutputRow = session.get_outputs()[0].shape[1]  # 25200
+            mOutputColumn = session.get_outputs()[0].shape[2]  # 6
 
-        # Post-processes: boxes extraction
-        boxes = np.array(c4dDetector.outputPreprocess(result_0, mOutputRow, mOutputColumn, frame))
+            # Post-processes: boxes extraction
+            boxes = np.array(c4dDetector.outputPreprocess(result_0, mOutputRow, mOutputColumn, frame))
 
-        # Post-processes: boxes NMS
-        if boxes.shape[0] > 1:
-            boxes_sorted = boxes[np.argsort(-1 * boxes[:, 4])]
+            # Post-processes: boxes NMS
+            if boxes.shape[0] > 1:
+                boxes_sorted = boxes[np.argsort(-1 * boxes[:, 4])]
+            else:
+                boxes_sorted = boxes
+            rem_bbox = c4dDetector.FilterBoxesNMS(boxes, c4dConfig.crop_detector_thresh)
+            rem_bbox = np.array(rem_bbox)
+
+            if verbose:
+                print("[C4D][ONNX] Post-Processing Executed for frame " + str(frm_count))
+                print("[C4D][ONNX] Crop Detection Output: " + str(rem_bbox.shape[0]) + " plants")
+
+            # Add artichoke count to out Msg
+            outMSG += c4dAes.formatPlantCnt(rem_bbox.shape[0], 3)
         else:
-            boxes_sorted = boxes
-        rem_bbox = c4dDetector.FilterBoxesNMS(boxes, c4dConfig.crop_detector_thresh)
-        rem_bbox = np.array(rem_bbox)
-
-        if verbose:
-            print("[C4D][ONNX] Post-Processing Executed for frame " + str(frm_count))
-            print("[C4D][ONNX] Crop Detection Output: " + str(rem_bbox.shape[0]) + " plants")
-
-        # Add artichoke count to out Msg
-        outMSG += c4dAes.formatPlantCnt(rem_bbox.shape[0], 3)
+            outMSG += "0"
+        
         if verbose:
             print("[C4D] Plain Message: " + outMSG)
 
         if c4dConfig.output_video_path:
             # Print Boxes on frame and write frames
-            if c4dConfig.show_crop_detection:
-                frame = c4dDetector.printBBoxes(frame, rem_bbox)        
-            img_array.append(frame)
+            if c4dConfig.show_crop_detection and not c4dConfig.skip_inference:
+                frame = c4dDetector.printBBoxes(frame, rem_bbox)
+            cv2.putText(frame, outMSG, (10, 10), cv2.FONT_HERSHEY_DUPLEX, 255, color=(255, 0, 0))
+            videoWriter.write(frame)
 
         # Perform AES Encryption
         encryptedMsg=None
@@ -237,12 +249,9 @@ try:
 except KeyboardInterrupt:
     # Exception for ctrl-c case
     cap.release()
-    cv2.destroyAllWindows()
-
-    ##  Write Video avi ##
     if c4dConfig.output_video_path:
-        print("[C4D][ONNX] Writing Video Output at " + str(c4dConfig.output_video_path))
-        c4dDetector.WriteC4DVideo(c4dConfig.output_video_path, img_array)
+        videoWriter.release()
+    cv2.destroyAllWindows()
 
     # Close vehicle object before exiting scrip
     if not c4dConfig.px4_use_fake_position:
@@ -251,15 +260,11 @@ except KeyboardInterrupt:
     sys.exit()
 
 cap.release()
-cv2.destroyAllWindows()
-
-##  Write Video avi ##
 if c4dConfig.output_video_path:
-    print("[C4D][ONNX] Writing Video Output at " + str(c4dConfig.output_video_path))
-    c4dDetector.WriteC4DVideo(c4dConfig.output_video_path, img_array)
+    videoWriter.release()
+cv2.destroyAllWindows()
 
 # Close vehicle object before exiting scrip
 if not c4dConfig.px4_use_fake_position:
     vehicle.close()
     time.sleep(1)
-

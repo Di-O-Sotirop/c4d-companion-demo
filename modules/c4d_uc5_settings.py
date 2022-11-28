@@ -42,6 +42,7 @@ def readConfiguration():
     parser.add_argument("--set_max_num_of_frames", action='store', help="Set max number of frames processed (for simulation purpose)", default=None)
 
     # Processing Configuration
+    parser.add_argument("--skip_inference", action='store_true', help="Skip crop detector", default=False)
     parser.add_argument("--crop_detector_model", action='store', help="ONNX DL Model for crop detection", default="models/c4d-aitek-v1.onnx")
     parser.add_argument("--crop_detector_thresh", action='store', help="Set ONNX bounding box confidence threshold", default=0.2)
     parser.add_argument("--show_crop_detection", action='store_true', help="Show on the frame the bboxes", default=False)
