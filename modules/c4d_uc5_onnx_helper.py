@@ -164,7 +164,7 @@ def FilterBoxesNMS(sorted_Boxes, iou_threshold):
     return bbox_list
 
 
-def printBBoxes(rem_bbox, frame):
+def printBBoxes(frame, rem_bbox):
     (canH, canW, scaleW, scaleH, padFactor) = frameSpecs(frame, (640,640))
 
     for i in range(0, rem_bbox.shape[0]):
@@ -176,10 +176,3 @@ def printBBoxes(rem_bbox, frame):
         box_rect = cv2.rectangle(frame, boxYX, boxYrXr, (0, 0, 180), 3)
     return frame
 
-def WriteC4DVideo(video_path, img_array):
-    (canH, canW, scaleW, scaleH, padFactor) = frameSpecs(img_array[0], (640,640))
-    out = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'MP4V'), 20, (canH, canW))
-    
-    for i in range(len(img_array)):
-        out.write(img_array[i])
-    out.release()

@@ -90,6 +90,9 @@ if verbose:
 # Import and Split Video
 if not c4dConfig.input_video_path:
     cap = cv2.VideoCapture(c4dConfig.input_camera_device_id)
+    #cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) # this is the magic!
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)    
     if verbose:
         print("[C4D] Read Input Video from Camera " + str(c4dConfig.input_camera_device_id))
 else:
@@ -108,7 +111,7 @@ if not cap.isOpened():
 if c4dConfig.output_video_path:
     print("[C4D] Writing Video Output at " + str(c4dConfig.output_video_path))
     videoWriter = cv2.VideoWriter(c4dConfig.output_video_path, \
-        cv2.VideoWriter_fourcc(*'XVID'), 20.0, \
+        cv2.VideoWriter_fourcc(*'XVID'), 1.0, \
         (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) + 0.5), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) + 0.5)))
 
 ################################################################################################
@@ -140,6 +143,8 @@ if not c4dConfig.px4_use_fake_position:
 try:
     while (cap.isOpened()):
 
+        currPlantsCount = "0"
+
         # Capture Timestamp
         curDT = datetime.datetime.now()
         outMSG = curDT.strftime("%Y%m%d%H%M%S")
@@ -163,20 +168,24 @@ try:
             vy = 0
             vz = 0
 
-        if verbose:
-            print("[C4D][Vehicle] Alt: %s" % altitude)
-            print("[C4D][Vehicle] Lon: %s" % longitude)
-            print("[C4D][Vehicle] Lat: %s" % latitude)
-        
-        
+        # Append GPS Information to message
         outMSG += ',' + c4dAes.formatNumeric(latitude, 2, 10) \
                 + ',' + c4dAes.formatNumeric(longitude, 2, 10) \
                 + ',' + c4dAes.formatNumeric(altitude, 2, 10)
-        # Capture Speed
+
+        # Append Speed to message
         outMSG += ',' + c4dAes.formatNumeric(vx, 2, 7) \
                 + ',' + c4dAes.formatNumeric(vy, 2, 7) \
                 + ',' + c4dAes.formatNumeric(vz, 2, 7) + ','
 
+        if verbose:
+            print("[C4D][Vehicle] Long.: " + c4dAes.formatNumeric(longitude, 2, 10)\
+            + " Lati.: " + c4dAes.formatNumeric(latitude, 2, 10)\
+            + " Alti.: " + c4dAes.formatNumeric(altitude, 2, 10)\
+            + " Speed-X: " + c4dAes.formatNumeric(vx, 2, 7) \
+            + " Speed-Y: " + c4dAes.formatNumeric(vy, 2, 7) \
+            + " Speed-Z: " + c4dAes.formatNumeric(vz, 2, 7))
+        
         # Read Frame
         ret, frame = cap.read()
         if not ret:
@@ -212,18 +221,31 @@ try:
                 print("[C4D][ONNX] Crop Detection Output: " + str(rem_bbox.shape[0]) + " plants")
 
             # Add artichoke count to out Msg
-            outMSG += c4dAes.formatPlantCnt(rem_bbox.shape[0], 3)
-        else:
-            outMSG += "0"
+            currPlantsCount = c4dAes.formatPlantCnt(rem_bbox.shape[0], 3)
+        
+        outMSG += currPlantsCount
         
         if verbose:
-            print("[C4D] Plain Message: " + outMSG)
+            print("[C4D] Message: " + outMSG)
 
         if c4dConfig.output_video_path:
             # Print Boxes on frame and write frames
             if c4dConfig.show_crop_detection and not c4dConfig.skip_inference:
                 frame = c4dDetector.printBBoxes(frame, rem_bbox)
-            cv2.putText(frame, outMSG, (10, 10), cv2.FONT_HERSHEY_DUPLEX, 255, color=(255, 0, 0))
+            textToWrite = str(curDT) + "\n"\
+            + "Long.: " + c4dAes.formatNumeric(longitude, 2, 10)+ "\n"\
+            + "Lati.: " + c4dAes.formatNumeric(latitude, 2, 10)+ "\n"\
+            + "Alti.: " + c4dAes.formatNumeric(altitude, 2, 10)+ "\n"\
+            + "Speed-X: " + c4dAes.formatNumeric(vx, 2, 7)+ "\n"\
+            + "Speed-Y: " + c4dAes.formatNumeric(vy, 2, 7)+ "\n"\
+            + "Speed-Z: " + c4dAes.formatNumeric(vz, 2, 7)+ "\n"\
+            + "Plants: " + currPlantsCount
+            # frame = cv2.putText(frame, textToWrite, (10, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.25, (0, 255, 0), 1, cv2.LINE_AA)
+            y0, dy = 20, 25
+            for i, line in enumerate(textToWrite.split('\n')):
+                y = y0 + i*dy
+                frame = cv2.putText(frame, line, (y0, y ), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 1, cv2.LINE_AA)
+
             videoWriter.write(frame)
 
         # Perform AES Encryption
@@ -232,7 +254,7 @@ try:
             result = subprocess.run(['bin/aes-hw-accel-wp5-08-rot', '-e', outMSG], stdout=subprocess.PIPE, universal_newlines=True)
             encryptedMsg = result.stdout
             if verbose:
-                print("[C4D] Encrypted Message: " + encryptedMsg)
+                print("[C4D] Message (Encrypted): " + encryptedMsg)
 
         # Perform Communication
         if not c4dConfig.skip_communication:
